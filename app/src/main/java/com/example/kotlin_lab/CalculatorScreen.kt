@@ -1,14 +1,18 @@
 package com.example.kotlin_lab
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,7 +36,7 @@ fun CalculatorScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Calculator Activity") },
+                title = { Text("Modern Calculator") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -40,83 +44,97 @@ fun CalculatorScreen(navController: NavController) {
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        }
+        },
+        containerColor = Color.Transparent
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFECF2FF), Color(0xFFE3E3E3))
+                    )
+                )
+                .padding(padding)
+                .padding(16.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-                horizontalAlignment = Alignment.End
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = expression,
-                    fontSize = 24.sp,
-                    color = Color.Gray,
-                    maxLines = 1
-                )
-                Text(
-                    text = result,
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                // Result Display
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            shadowElevation = 8f
+                            shape = RoundedCornerShape(24.dp)
+                            clip = true
+                        }
+                        .background(Color.White.copy(alpha = 0.2f))
+                        .blur(16.dp)
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(text = expression, fontSize = 24.sp, color = Color.DarkGray, maxLines = 1)
+                    Text(
+                        text = result,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
 
-            Column(modifier = Modifier.fillMaxWidth()) {
-                buttons.forEach { row ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        row.forEach { label ->
-                            CalculatorButton(
-                                label = label,
-                                modifier = Modifier.weight(1f),
-                                onClick = {
-                                    when (label) {
-                                        "AC" -> {
-                                            expression = ""
-                                            result = ""
-                                        }
-                                        "⌫" -> {
-                                            if (expression.isNotEmpty())
-                                                expression = expression.dropLast(1)
-                                        }
-                                        "=" -> {
-                                            try {
-                                                val replaced = expression
-                                                    .replace("÷", "/")
-                                                    .replace("×", "*")
-                                                    .replace("−", "-")
-                                                val eval = ExpressionBuilder(replaced).build().evaluate()
-                                                result = eval.toString()
-                                            } catch (e: Exception) {
-                                                result = "Error : ${e.message}"
+                // Button Grid
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    buttons.forEach { row ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            row.forEach { label ->
+                                ModernCalcButton(
+                                    label = label,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = {
+                                        when (label) {
+                                            "AC" -> {
+                                                expression = ""
+                                                result = ""
                                             }
-                                        }
-                                        "±" -> {
-                                            if (expression.startsWith("-")) {
-                                                expression = expression.removePrefix("-")
-                                            } else {
-                                                expression = "-$expression"
+                                            "⌫" -> {
+                                                if (expression.isNotEmpty())
+                                                    expression = expression.dropLast(1)
                                             }
-                                        }
-                                        else -> {
-                                            expression += label
+                                            "=" -> {
+                                                try {
+                                                    val replaced = expression
+                                                        .replace("÷", "/")
+                                                        .replace("×", "*")
+                                                        .replace("−", "-")
+                                                    val eval = ExpressionBuilder(replaced).build().evaluate()
+                                                    result = eval.toString()
+                                                } catch (e: Exception) {
+                                                    result = "Error"
+                                                }
+                                            }
+                                            "±" -> {
+                                                if (expression.startsWith("-")) {
+                                                    expression = expression.removePrefix("-")
+                                                } else {
+                                                    expression = "-$expression"
+                                                }
+                                            }
+                                            else -> expression += label
                                         }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -126,30 +144,23 @@ fun CalculatorScreen(navController: NavController) {
 }
 
 @Composable
-fun CalculatorButton(
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
+fun ModernCalcButton(label: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val isOperator = label in listOf("AC", "⌫", "%", "÷", "×", "−", "+", "=")
+    val bgColor = if (isOperator) Color(0xFF7D9EFF) else Color.White
+    val textColor = if (isOperator) Color.White else Color.Black
+
     Button(
         onClick = onClick,
         modifier = modifier
             .aspectRatio(1f)
             .padding(4.dp),
-        shape = CircleShape,
+        shape = RoundedCornerShape(18.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = when (label) {
-                "AC", "⌫", "%", "÷", "×", "−", "+" -> Color(0xFF00BFA6)
-                "=" -> Color(0xFF00BFA6)
-                else -> Color(0xFFE0E0E0)
-            },
-            contentColor = Color.Black
-        )
+            containerColor = bgColor,
+            contentColor = textColor
+        ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
-        Text(
-            text = label,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        Text(text = label, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
     }
 }

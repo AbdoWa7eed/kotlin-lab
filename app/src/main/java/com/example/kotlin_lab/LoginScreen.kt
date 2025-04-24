@@ -2,13 +2,16 @@ package com.example.kotlin_lab
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,6 +24,7 @@ fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     val sharedPref = context.getSharedPreferences("loginPrefs", Context.MODE_PRIVATE)
     val emailListKey = "emailList"
 
@@ -34,83 +38,59 @@ fun LoginScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Login Activity") },
+                title = { Text("Back to Labs", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
+                            tint = Color.White
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF262A56))
             )
         }
     ) { padding ->
-        Column(
+
+        Box(
             modifier = Modifier
-                .padding(padding)
                 .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .background(brush = Brush.verticalGradient(colors = listOf(Color(0xFFEEF2FF), Color(0xFFD1C4E9))))
+                .padding(padding),
+            contentAlignment = Alignment.Center
         ) {
-            // Previous Logins Card
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(6.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(10.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("👤 Previous Logins", style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    val emailsToShow = if (showAll) allEmails else allEmails.take(3)
-
-                    emailsToShow.forEach {
-                        Text("• $it", style = MaterialTheme.typography.bodyMedium)
-                    }
-
-                    if (allEmails.size > 3) {
-                        TextButton(
-                            onClick = { showAll = !showAll },
-                            modifier = Modifier.padding(top = 8.dp)
-                        ) {
-                            Text(if (showAll) "Show Less" else "See All")
-                        }
-                    }
-                }
-            }
-
-            // Login Form Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(6.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("🔐 Login", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Text("🔐 Secure Login", style = MaterialTheme.typography.headlineSmall, color = Color(0xFF3E3E3E))
 
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Email") },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Password") },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
                         onClick = {
@@ -129,11 +109,31 @@ fun LoginScreen(navController: NavController) {
                                 allEmails = currentSet.toList().reversed()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFA6))
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5E35B1))
                     ) {
-                        Text("Login", color = Color.White)
+                        Text("Log In", style = MaterialTheme.typography.bodyLarge.copy(color = Color.White))
+                    }
+
+6
+
+                    if (allEmails.isNotEmpty()) {
+                        Divider(color = Color.LightGray, thickness = 1.dp)
+                        Text("Previous Logins", style = MaterialTheme.typography.titleMedium)
+
+                        val shown = if (showAll) allEmails else allEmails.take(3)
+                        shown.forEach { emailEntry ->
+                            Text("• $emailEntry", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        if (allEmails.size > 3) {
+                            TextButton(onClick = { showAll = !showAll }) {
+                                Text(if (showAll) "Show Less" else "See All", color = Color(0xFF5E35B1))
+                            }
+                        }
                     }
                 }
             }

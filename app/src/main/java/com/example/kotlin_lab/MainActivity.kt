@@ -4,8 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,76 +48,90 @@ fun MainScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6F7FB))
+            .background(Color(0xFFEFEFF1))
+            .padding(16.dp)
     ) {
         Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 24.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Welcome to Kotlin Labs",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color(0xFF2E2E2E),
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = "Kotlin Lab Hub",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B1C1E)
+                ),
+                modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                shadowElevation = 8.dp,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Choose Your Lab",
-                        style = MaterialTheme.typography.titleLarge.copy(color = Color(0xFF6842FF)),
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
+            LabCard(
+                title = "Calculator Lab",
+                description = "Perform basic arithmetic calculations",
+                color = Color(0xFF8E24AA),
+                onClick = { navController.navigate("calculator") }
+            )
 
-                    CustomButton(
-                        label = "Lab 1 (Calculator)",
-                        onClick = { navController.navigate("calculator") },
-                        backgroundColor = Color(0xFF6842FF)
-                    )
+            Spacer(modifier = Modifier.height(20.dp))
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    CustomButton(
-                        label = "Lab 2 (Login)",
-                        onClick = { navController.navigate("login") },
-                        backgroundColor = Color(0xFF42A5F5)
-                    )
-                }
-            }
+            LabCard(
+                title = "Login Lab",
+                description = "Explore UI login form design",
+                color = Color(0xFF039BE5),
+                onClick = { navController.navigate("login") }
+            )
         }
     }
 }
 
 @Composable
-fun CustomButton(
-    label: String,
-    onClick: () -> Unit,
-    backgroundColor: Color = Color(0xFF6842FF)
-) {
-    Button(
-        onClick = onClick,
+fun LabCard(title: String, description: String, color: Color, onClick: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White,
+        shadowElevation = 10.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(60.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor)
+            .height(140.dp)
+            .clickable { onClick() }
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(color, shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit, // You can use different icons for variety
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.Gray
+                    )
+                )
+            }
+        }
     }
 }
-
